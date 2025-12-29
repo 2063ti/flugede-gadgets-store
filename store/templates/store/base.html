@@ -1,0 +1,162 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="FlugEde - Your Premium Electronics Store. Shop the latest smartphones, laptops, smart TVs, and electronic gadgets with amazing deals and fast delivery.">
+    <meta name="keywords" content="electronics, gadgets, smartphones, laptops, smart tv, online shopping">
+    <title>{% block title %}FlugEde - Premium Electronics Store{% endblock %}</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="{% url 'home' %}" class="navbar-brand">
+                <i class="fas fa-bolt"></i> FlugEde
+            </a>
+
+            <!-- Search Bar -->
+            <form action="{% url 'product_list' %}" method="get" class="search-container" style="position: relative;">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" name="q" class="search-input" id="searchInput"
+                    placeholder="Search for products, brands...">
+                <div id="searchSuggestions" class="search-suggestions"></div>
+            </form>
+
+            <!-- Navigation Menu -->
+            <ul class="navbar-menu">
+                <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="{% url 'product_list' %}"><i class="fas fa-shopping-bag"></i> Products</a></li>
+
+                {% if user.is_authenticated %}
+                <li><a href="{% url 'cart' %}">
+                        <i class="fas fa-shopping-cart"></i> Cart
+                        <span class="badge badge-info" id="cartCount">{{ cart_count }}</span>
+                    </a></li>
+                <li><a href="{% url 'wishlist' %}"><i class="fas fa-heart"></i> Wishlist</a></li>
+                <li class="dropdown">
+                    <a href="#"><i class="fas fa-user"></i> {{ user.username }}</a>
+                    <div class="dropdown-menu">
+                        <a href="{% url 'profile' %}"><i class="fas fa-user-circle"></i> Profile</a>
+                        <a href="{% url 'order_list' %}"><i class="fas fa-box"></i> Orders</a>
+                        <a href="{% url 'address_list' %}"><i class="fas fa-map-marker-alt"></i> Addresses</a>
+                        <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </li>
+                {% else %}
+                <li><a href="{% url 'login' %}" class="btn btn-outline"><i class="fas fa-sign-in-alt"></i> Login</a>
+                </li>
+                <li><a href="{% url 'register' %}" class="btn btn-primary"><i class="fas fa-user-plus"></i> Register</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="container" style="margin-top: 1rem;">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            <i
+                class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4><i class="fas fa-bolt"></i> FlugEde</h4>
+                    <p style="color: var(--text-muted);">Your trusted destination for premium electronic gadgets and
+                        devices. Quality products, amazing prices, fast delivery.</p>
+                    <div style="margin-top: 1rem;">
+                        <a href="#" style="margin-right: 1rem; font-size: 1.5rem;"><i class="fab fa-facebook"></i></a>
+                        <a href="#" style="margin-right: 1rem; font-size: 1.5rem;"><i class="fab fa-twitter"></i></a>
+                        <a href="#" style="margin-right: 1rem; font-size: 1.5rem;"><i class="fab fa-instagram"></i></a>
+                        <a href="#" style="font-size: 1.5rem;"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="{% url 'home' %}">Home</a></li>
+                        <li><a href="{% url 'product_list' %}">Products</a></li>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="{% url 'contact' %}">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Customer Service</h4>
+                    <ul>
+                        <li><a href="#">Track Order</a></li>
+                        <li><a href="#">Returns & Refunds</a></li>
+                        <li><a href="#">Shipping Info</a></li>
+                        <li><a href="#">Warranty</a></li>
+                        <li><a href="#">FAQs</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Newsletter</h4>
+                    <p style="color: var(--text-muted); margin-bottom: 1rem;">Subscribe to get special offers and
+                        updates!</p>
+                    <form id="newsletterForm">
+                        {% csrf_token %}
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="email" name="email" class="form-input" placeholder="Your email" required>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 FlugEde. All rights reserved. | Designed with <i class="fas fa-heart"
+                        style="color: var(--secondary-color);"></i> for tech enthusiasts</p>
+            </div>
+        </div>
+    </footer>
+
+
+
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

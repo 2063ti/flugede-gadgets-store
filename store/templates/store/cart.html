@@ -1,0 +1,145 @@
+{% extends 'store/base.html' %}
+{% load static %}
+{# Cart Template Fixed Version #}
+
+{% block title %}Shopping Cart - FlugEde{% endblock %}
+
+{% block content %}
+<div class="container" style="margin: 4rem auto;">
+    <h1 style="margin-bottom: 2rem;"><i class="fas fa-shopping-cart"></i> Shopping Cart</h1>
+
+    {% if cart.items.all %}
+    <div class="layout-2-1">
+        <!-- Cart Items -->
+        <div>
+            {% for item in cart.items.all %}
+            <div class="card" style="margin-bottom: 1rem; padding: 1.5rem;">
+                <div style="display: grid; grid-template-columns: 120px 1fr auto; gap: 1.5rem; align-items: center;">
+                    <!-- Product Image -->
+                    <a href="{% url 'product_detail' item.product.slug %}">
+                        {% if item.product.images.all.0 %}
+                        <img src="{{ item.product.images.all.0.image.url }}" alt="{{ item.product.name }}"
+                            style="width: 100%; height: 120px; object-fit: cover; border-radius: 0.5rem;">
+                        {% else %}
+                        <div
+                            style="width: 100%; height: 120px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-image" style="font-size: 2rem; color: white; opacity: 0.3;"></i>
+                        </div>
+                        {% endif %}
+                    </a>
+
+                    <!-- Product Info -->
+                    <div>
+                        <a href="{% url 'product_detail' item.product.slug %}" class="product-title">
+                            {{ item.product.name }}
+                        </a>
+                        <p style="color: var(--text-muted); margin: 0.5rem 0;">
+                            <span class="badge badge-info">{{ item.product.brand.name }}</span>
+                            {% if item.product.stock < 10 %} <span class="badge badge-warning">
+                                Only {{ item.product.stock }} left!
+                                </span>
+                                {% endif %}
+                        </p>
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-top: 1rem;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <button class="btn btn-outline qty-btn-minus" style="padding: 0.25rem 0.75rem;">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <input type="number" class="form-input cart-quantity-input qty-input"
+                                    value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}"
+                                    data-item-id="{{ item.id }}"
+                                    style="width: 60px; text-align: center; padding: 0.25rem;">
+                                <button class="btn btn-outline qty-btn-plus" style="padding: 0.25rem 0.75rem;">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-danger"
+                                style="padding: 0.5rem 1rem;">
+                                <i class="fas fa-trash"></i> Remove
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Price -->
+                    <div style="text-align: right;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary-light);">
+                            ₹{{ item.total_price }}
+                        </div>
+                        <div style="color: var(--text-muted); font-size: 0.9rem;">
+                            ₹{{ item.product.final_price }} × {{ item.quantity }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Order Summary -->
+        <div>
+            <div class="card glass" style="position: sticky; top: 100px;">
+                <h3 style="margin-bottom: 1.5rem;"><i class="fas fa-receipt"></i> Order Summary</h3>
+
+                <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="color: var(--text-secondary);">Subtotal ({{ cart.total_items }} items)</span>
+                        <span style="font-weight: 600;">₹{{ cart.subtotal }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="color: var(--text-secondary);">Shipping</span>
+                        <span style="font-weight: 600; color: var(--success);">
+                            {% if cart.shipping == 0 %}FREE{% else %}₹{{ cart.shipping }}{% endif %}
+                        </span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-secondary);">Tax (18% GST)</span>
+                        <span style="font-weight: 600;">₹{{ cart.tax }}</span>
+                    </div>
+                </div>
+
+                <div
+                    style="display: flex; justify-content: space-between; font-size: 1.25rem; font-weight: 700; margin-bottom: 1.5rem;">
+                    <span>Total</span>
+                    <span style="color: var(--primary-light);">₹{{ cart.total }}</span>
+                </div>
+
+                <a href="{% url 'checkout' %}" class="btn btn-primary"
+                    style="width: 100%; justify-content: center; padding: 1rem; font-size: 1.1rem;">
+                    <i class="fas fa-lock"></i> Proceed to Checkout
+                </a>
+
+                <a href="{% url 'product_list' %}" class="btn btn-outline"
+                    style="width: 100%; justify-content: center; margin-top: 0.5rem;">
+                    <i class="fas fa-arrow-left"></i> Continue Shopping
+                </a>
+
+                <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+                        <i class="fas fa-tag"></i> Have a coupon code?
+                    </p>
+                    <form id="couponForm">
+                        {% csrf_token %}
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="text" id="couponCode" class="form-input" placeholder="Enter code"
+                                style="flex: 1;">
+                            <button type="button" id="applyCouponBtn" class="btn btn-secondary">Apply</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <!-- Empty Cart -->
+    <div class="card" style="text-align: center; padding: 4rem 2rem;">
+        <i class="fas fa-shopping-cart"
+            style="font-size: 5rem; color: var(--text-muted); opacity: 0.3; margin-bottom: 1.5rem;"></i>
+        <h2 style="margin-bottom: 1rem;">Your Cart is Empty</h2>
+        <p style="color: var(--text-muted); margin-bottom: 2rem;">Looks like you haven't added any items to your cart
+            yet.</p>
+        <a href="{% url 'product_list' %}" class="btn btn-primary">
+            <i class="fas fa-shopping-bag"></i> Start Shopping
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

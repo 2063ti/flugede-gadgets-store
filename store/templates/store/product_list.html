@@ -1,0 +1,55 @@
+﻿{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Products - FlugEde{% endblock %}
+
+{% block content %}
+<div class="container" style="margin: 2rem auto;">
+    <h1 style="margin-bottom: 2rem;"><i class="fas fa-shopping-bag"></i> All Products</h1>
+    <div style="display: grid; grid-template-columns: 250px 1fr; gap: 2rem;">
+        <aside class="card" style="height: fit-content; position: sticky; top: 100px;">
+            <h3 style="margin-bottom: 1.5rem;"><i class="fas fa-filter"></i> Filters</h3>
+            <form method="get">
+                <div style="margin-bottom: 2rem;">
+                    <h4 style="font-size: 1rem; margin-bottom: 1rem; color: var(--text-secondary);">Category</h4>
+                    {% for category in categories %}
+                    <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); cursor: pointer;">
+                        <input type="radio" name="category" value="{{ category.slug }}" {% if current_category == category.slug %}checked{% endif %}>
+                        {{ category.name }}
+                    </label>
+                    {% endfor %}
+                </div>
+                <div style="margin-bottom: 2rem;">
+                    <h4 style="font-size: 1rem; margin-bottom: 1rem; color: var(--text-secondary);">Brand</h4>
+                    {% for brand in brands %}
+                    <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); cursor: pointer;">
+                        <input type="radio" name="brand" value="{{ brand.slug }}" {% if current_brand == brand.slug %}checked{% endif %}>
+                        {{ brand.name }}
+                    </label>
+                    {% endfor %}
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fas fa-check"></i> Apply</button>
+            </form>
+        </aside>
+        <div>
+            <div class="grid grid-3">
+                {% for product in page_obj %}
+                <div class="card product-card">
+                    <a href="{% url 'product_detail' product.slug %}">
+                        {% if product.images.all.0 %}
+                        <img src="{{ product.images.all.0.image.url }}" alt="{{ product.name }}">
+                        {% endif %}
+                    </a>
+                    <div>
+                        <a href="{% url 'product_detail' product.slug %}" class="product-title">{{ product.name }}</a>
+                        <div class="product-price">₹{{ product.final_price }}</div>
+                    </div>
+                </div>
+                {% empty %}
+                <p>No products found</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

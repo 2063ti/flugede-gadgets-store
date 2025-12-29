@@ -1,0 +1,236 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Checkout - FlugEde{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/checkout.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="checkout-container">
+    <h1 class="checkout-title"><i class="fas fa-lock"></i> Secure Checkout</h1>
+    <form method="post" id="checkoutForm">
+        {% csrf_token %}
+        <div class="layout-2-1">
+            <div>
+                <div class="checkout-section">
+                    <h3 class="section-title"><i class="fas fa-map-marker-alt"></i> Delivery Address</h3>
+                    {% if addresses %}
+                    <div class="address-list">
+                        {% for address in addresses %}
+                        <label class="address-option">
+                            <input type="radio" name="address_id" value="{{ address.id }}" required {% if address.is_default %}checked{% endif %} class="address-radio">
+                            <div class="address-content">
+                                <div class="address-name">{{ address.full_name }}</div>
+                                <div class="address-details">
+                                    {{ address.address_line1 }}{% if address.address_line2 %}, {{ address.address_line2 }}{% endif %}<br>
+                                    {{ address.city }}, {{ address.state }} - {{ address.pincode }}<br>
+                                    <span class="address-phone"><i class="fas fa-phone"></i> {{ address.phone }}</span>
+                                </div>
+                            </div>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    <a href="{% url 'add_address' %}" class="btn btn-outline btn-add-address">
+                        <i class="fas fa-plus"></i> Add New Address
+                    </a>
+                    {% else %}
+                    <div class="empty-state">
+                        <p class="empty-message">No saved addresses found.</p>
+                        <a href="{% url 'add_address' %}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Delivery Address
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="checkout-section">
+                    <h3 class="section-title"><i class="fas fa-credit-card"></i> Payment Method</h3>
+                    <div class="payment-options">
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="cod" required checked class="payment-radio">
+                            <div class="payment-content">
+                                <i class="fas fa-money-bill-wave payment-icon"></i>
+                                <div>
+                                    <div class="payment-title">Cash on Delivery</div>
+                                    <div class="payment-subtitle">Pay when you receive</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="razorpay" required class="payment-radio">
+                            <div class="payment-content">
+                                <i class="fas fa-credit-card payment-icon"></i>
+                                <div>
+                                    <div class="payment-title">Online Payment (Razorpay)</div>
+                                    <div class="payment-subtitle">Credit/Debit Card, UPI, Net Banking, Wallets</div>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="order-summary-wrapper">
+                <div class="order-summary">
+                    <h3 class="section-title"><i class="fas fa-receipt"></i> Order Summary</h3>
+                    <div class="coupon-section">
+                        <label for="couponCode" class="coupon-label"><i class="fas fa-ticket-alt"></i> Apply Coupon</label>
+                        <div class="coupon-input-group">
+                            <input id="couponCode" name="coupon_code" type="text" placeholder="Enter coupon code" class="coupon-input">
+                            <button type="button" id="applyCouponBtn" class="btn btn-outline coupon-btn">Apply</button>
+                        </div>
+                        <p class="coupon-hint">Discounts will be shown in the summary below after applying a valid coupon.</p>
+                    </div>
+                    <div class="order-items">
+                        {% for item in cart.items.all %}
+                        <div class="order-item">
+                            {% if item.product.images.all.0 %}
+                            <img src="{{ item.product.images.all.0.image.url }}" alt="{{ item.product.name }}" class="order-item-image">
+                            {% endif %}
+                            <div class="order-item-details">
+                                <div class="order-item-name">{{ item.product.name|truncatewords:4 }}</div>
+                                <div class="order-item-qty">Qty: {{ item.quantity }}</div>
+                            </div>
+                            <div class="order-item-price">₹{{ item.total_price }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="price-breakdown">
+                        <div class="price-row">
+                            <span class="price-label">Subtotal</span>
+                            <span id="subtotalAmount" data-value="{{ cart.subtotal }}" class="price-value">₹{{ cart.subtotal }}</span>
+                        </div>
+                        <div class="price-row">
+                            <span class="price-label">Shipping</span>
+                            <span id="shippingAmount" data-value="{{ cart.shipping }}" class="price-value shipping-free">
+                                {% if cart.shipping == 0 %}FREE{% else %}₹{{ cart.shipping }}{% endif %}
+                            </span>
+                        </div>
+                        <div class="price-row">
+                            <span class="price-label">Tax (18% GST)</span>
+                            <span id="taxAmount" data-value="{{ cart.tax }}" class="price-value">₹{{ cart.tax }}</span>
+                        </div>
+                        <div class="price-row">
+                            <span class="price-label">Discount</span>
+                            <span id="discountAmount" data-value="0" class="price-value discount-value">₹0.00</span>
+                        </div>
+                    </div>
+                    <div class="price-total">
+                        <span class="total-label">Total</span>
+                        <span id="totalAmount" data-original-total="{{ cart.total }}" class="total-value">₹{{ cart.total }}</span>
+                    </div>
+                    <button type="button" id="placeOrderBtn" class="btn btn-primary btn-place-order">
+                        <i class="fas fa-check-circle"></i> Place Order
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+jQuery(document).ready(function($) {
+    const form = $('#checkoutForm');
+    const btn = $('#placeOrderBtn');
+    
+    btn.on('click', function(e) {
+        e.preventDefault();
+        const method = $('input[name="payment_method"]:checked').val();
+        console.log('Place Order clicked, payment method:', method);
+        
+        if(method === 'razorpay') {
+            const addr = $('input[name="address_id"]:checked').val();
+            if(!addr) {
+                alert('Please select a delivery address');
+                return;
+            }
+            
+            btn.prop('disabled', true);
+            btn.html('<i class="fas fa-spinner fa-spin"></i> Processing...');
+            
+            const formData = new FormData(form[0]);
+            
+            $.ajax({
+                url: '/checkout/',
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    console.log('Order created successfully:', response);
+                    
+                    if(response.success) {
+                        const options = {
+                            key: response.razorpay_key_id,
+                            amount: response.amount,
+                            currency: response.currency,
+                            name: 'FlugEde',
+                            description: 'Order Payment',
+                            order_id: response.razorpay_order_id,
+                            handler: function(paymentResponse) {
+                                console.log('Payment success callback:', paymentResponse);
+                                fetch('/verify-payment/', {
+                                    method: 'POST',
+                                    headers: {'Content-Type': 'application/json'},
+                                    body: JSON.stringify({
+                                        razorpay_payment_id: paymentResponse.razorpay_payment_id,
+                                        razorpay_order_id: paymentResponse.razorpay_order_id,
+                                        razorpay_signature: paymentResponse.razorpay_signature,
+                                        order_id: response.order_id
+                                    })
+                                }).then(r => r.json()).then(result => {
+                                    if(result.status === 'ok') {
+                                        window.location = '/order/success/' + response.order_number + '/';
+                                    } else {
+                                        alert(result.message || 'Payment verification failed');
+                                        btn.prop('disabled', false);
+                                        btn.html('<i class="fas fa-check-circle"></i> Place Order');
+                                    }
+                                });
+                            },
+                            prefill: {
+                                name: '{{ user.get_full_name|default:user.username }}',
+                                email: '{{ user.email }}',
+                                contact: '{{ user.profile.phone|default:"" }}'
+                            },
+                            theme: {color: '#6366f1'},
+                            modal: {
+                                ondismiss: function() {
+                                    console.log('Payment popup closed by user');
+                                    btn.prop('disabled', false);
+                                    btn.html('<i class="fas fa-check-circle"></i> Place Order');
+                                }
+                            }
+                        };
+                        
+                        try {
+                            console.log('Opening Razorpay Checkout popup');
+                            const rzp = new Razorpay(options);
+                            rzp.open();
+                        } catch(e) {
+                            console.error('Failed to open Razorpay:', e);
+                            alert('Failed to open payment gateway. Please try again.');
+                            btn.prop('disabled', false);
+                            btn.html('<i class="fas fa-check-circle"></i> Place Order');
+                        }
+                    } else {
+                        alert(response.error || 'Failed to create order');
+                        btn.prop('disabled', false);
+                        btn.html('<i class="fas fa-check-circle"></i> Place Order');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX error:', {xhr: xhr, status: status, error: error});
+                    alert('Error creating order. Please try again.');
+                    btn.prop('disabled', false);
+                    btn.html('<i class="fas fa-check-circle"></i> Place Order');
+                }
+            });
+        }
+    });
+});
+</script>
+{% endblock %}

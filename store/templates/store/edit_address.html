@@ -1,0 +1,88 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Edit Address - FlugEde{% endblock %}
+
+{% block content %}
+<div class="container" style="margin: 4rem auto; max-width: 700px;">
+    <h1 style="margin-bottom: 2rem;"><i class="fas fa-edit"></i> Edit Address</h1>
+
+    <div class="card">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label class="form-label" for="full_name">Full Name</label>
+                <input type="text" id="full_name" name="full_name" class="form-input" value="{{ address.full_name }}"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" class="form-input" value="{{ address.phone }}" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="address_line1">Address Line 1</label>
+                <input type="text" id="address_line1" name="address_line1" class="form-input"
+                    value="{{ address.address_line1 }}" placeholder="House No., Building Name" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="address_line2">Address Line 2 (Optional)</label>
+                <input type="text" id="address_line2" name="address_line2" class="form-input"
+                    value="{{ address.address_line2 }}" placeholder="Road Name, Area, Colony">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <label class="form-label" for="city">City</label>
+                    <input type="text" id="city" name="city" class="form-input" value="{{ address.city }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="state">State</label>
+                    <input type="text" id="state" name="state" class="form-input" value="{{ address.state }}" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="pincode">Pincode</label>
+                <input type="text" id="pincode" name="pincode" class="form-input" value="{{ address.pincode }}"
+                    maxlength="6" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="address_type">Address Type</label>
+                <select id="address_type" name="address_type" class="form-select">
+                    <option value="home" {% if address.address_type == 'home' %}selected{% endif %}>
+                        Home
+                    </option>
+                    <option value="work" {% if address.address_type == 'work' %}selected{% endif %}>
+                        Work
+                    </option>
+                    <option value="other" {% if address.address_type == 'other' %}selected{% endif %}>
+                        Other
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <input type="checkbox" name="is_default" {% if address.is_default %}checked{% endif %}>
+                    <span>Set as default address</span>
+                </label>
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">
+                    <i class="fas fa-save"></i> Update Address
+                </button>
+                <a href="{% url 'address_list' %}" class="btn btn-outline">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Add Address - FlugEde{% endblock %}
+
+{% block content %}
+<div class="container" style="margin: 4rem auto; max-width: 700px;">
+    <h1 style="margin-bottom: 2rem;"><i class="fas fa-plus"></i> Add New Address</h1>
+
+    <div class="card">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label class="form-label" for="full_name">Full Name</label>
+                <input type="text" id="full_name" name="full_name" class="form-input" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" class="form-input" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="address_line1">Address Line 1</label>
+                <input type="text" id="address_line1" name="address_line1" class="form-input"
+                    placeholder="House No., Building Name" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="address_line2">Address Line 2 (Optional)</label>
+                <input type="text" id="address_line2" name="address_line2" class="form-input"
+                    placeholder="Road Name, Area, Colony">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <label class="form-label" for="city">City</label>
+                    <input type="text" id="city" name="city" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="state">State</label>
+                    <input type="text" id="state" name="state" class="form-input" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="pincode">Pincode</label>
+                <input type="text" id="pincode" name="pincode" class="form-input" maxlength="6" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="address_type">Address Type</label>
+                <select id="address_type" name="address_type" class="form-select">
+                    <option value="home">Home</option>
+                    <option value="work">Work</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <input type="checkbox" name="is_default">
+                    <span>Set as default address</span>
+                </label>
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">
+                    <i class="fas fa-save"></i> Save Address
+                </button>
+                <a href="{% url 'address_list' %}" class="btn btn-outline">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

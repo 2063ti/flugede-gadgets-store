@@ -1,0 +1,37 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Order Placed - FlugEde{% endblock %}
+
+{% block content %}
+<div class="container" style="margin: 6rem auto; text-align: center; max-width: 600px;">
+    <div class="card" style="padding: 4rem 2rem;">
+        <div
+            style="width: 80px; height: 80px; background: var(--success); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem;">
+            <i class="fas fa-check" style="font-size: 3rem; color: white;"></i>
+        </div>
+
+        <h1 style="margin-bottom: 1rem; color: var(--text-primary);">Order Placed Successfully!</h1>
+        <p style="color: var(--text-secondary); font-size: 1.1rem; margin-bottom: 2rem;">
+            Thank you for your purchase. Your order number is <strong>{{ order.order_number }}</strong>.
+        </p>
+
+        <div
+            style="background: rgba(99, 102, 241, 0.05); padding: 1.5rem; border-radius: 1rem; margin-bottom: 2.5rem; border: 1px dashed var(--primary-color);">
+            <p style="margin-bottom: 0.5rem; color: var(--text-muted);">Total Amount Paid</p>
+            <div style="font-size: 2rem; font-weight: 800; color: var(--primary-light);">
+                ₹{{ order.total }}
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <a href="{% url 'order_detail' order.id %}" class="btn btn-outline">
+                <i class="fas fa-file-invoice"></i> View Order Details
+            </a>
+            <a href="{% url 'product_list' %}" class="btn btn-primary">
+                <i class="fas fa-shopping-bag"></i> Continue Shopping
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

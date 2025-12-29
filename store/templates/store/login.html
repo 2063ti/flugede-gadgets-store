@@ -1,0 +1,54 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Login - FlugEde{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 500px; margin: 4rem auto;">
+    <div class="card glass" style="padding: 3rem;">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <i class="fas fa-user-circle" style="font-size: 4rem; color: var(--primary-color);"></i>
+            <h2 style="margin-top: 1rem;">Welcome Back!</h2>
+            <p style="color: var(--text-muted);">Login to your account</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label class="form-label" for="username">
+                    <i class="fas fa-user"></i> Username
+                </label>
+                <input type="text" id="username" name="username" class="form-input" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">
+                    <i class="fas fa-lock"></i> Password
+                </label>
+                <input type="password" id="password" name="password" class="form-input" required>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <label style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary);">
+                    <input type="checkbox" name="remember"> Remember me
+                </label>
+                <a href="{% url 'forgot_password' %}" style="color: var(--primary-light); font-size: 0.9rem;">Forgot
+                    Password?</a>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1.1rem;">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+        </form>
+
+        <div
+            style="text-align: center; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border-color);">
+            <p style="color: var(--text-muted);">
+                Don't have an account?
+                <a href="{% url 'register' %}" style="color: var(--primary-light); font-weight: 600;">Register here</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

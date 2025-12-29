@@ -1,0 +1,245 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}FlugEde - Premium Electronics Store | Smartphones, Laptops & More{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1><i class="fas fa-bolt"></i> Welcome to FlugEde</h1>
+            <p style="font-size: 1.25rem; color: var(--text-secondary); margin-bottom: 2rem;">
+                Discover the Latest Electronic Gadgets at Unbeatable Prices
+            </p>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <a href="{% url 'product_list' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-shopping-bag"></i> Shop Now
+                </a>
+                <a href="#featured" class="btn btn-outline btn-lg">
+                    <i class="fas fa-star"></i> View Deals
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section style="margin: 4rem 0;">
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <h2><i class="fas fa-th-large"></i> Shop by Category</h2>
+            <p style="color: var(--text-muted);">Explore our wide range of electronic categories</p>
+        </div>
+
+        <div class="grid grid-3">
+            {% for category in categories %}
+            <a href="{% url 'product_list' %}?category={{ category.slug }}" class="card"
+                style="text-align: center; text-decoration: none;">
+                {% if category.image %}
+                <img src="{{ category.image.url }}" alt="{{ category.name }}"
+                    style="width: 100%; height: 200px; object-fit: cover; border-radius: 0.75rem; margin-bottom: 1rem;">
+                {% else %}
+                <div
+                    style="width: 100%; height: 200px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 0.75rem; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-mobile-alt" style="font-size: 4rem; color: white; opacity: 0.5;"></i>
+                </div>
+                {% endif %}
+                <h3 style="color: var(--text-primary);">{{ category.name }}</h3>
+                <p style="color: var(--text-muted);">{{ category.description|truncatewords:10 }}</p>
+            </a>
+            {% empty %}
+            <p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">No categories available</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Featured Products -->
+    <section id="featured" style="margin: 4rem 0;">
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <h2><i class="fas fa-star"></i> Featured Products</h2>
+            <p style="color: var(--text-muted);">Handpicked products just for you</p>
+        </div>
+
+        <div class="grid grid-4">
+            {% for product in featured_products %}
+            <div class="card product-card">
+                {% if product.discount_percentage %}
+                <div class="product-badge">-{{ product.discount_percentage }}%</div>
+                {% endif %}
+
+                <a href="{% url 'product_detail' product.slug %}">
+                    {% if product.images.all.0 %}
+                    <img src="{{ product.images.all.0.image.url }}" alt="{{ product.name }}">
+                    {% else %}
+                    <div
+                        style="width: 100%; height: 250px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 0.75rem; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-image" style="font-size: 3rem; color: white; opacity: 0.3;"></i>
+                    </div>
+                    {% endif %}
+                </a>
+
+                <div>
+                    <a href="{% url 'product_detail' product.slug %}" class="product-title">
+                        {{ product.name|truncatewords:6 }}
+                    </a>
+
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <span class="badge badge-info">{{ product.brand.name }}</span>
+                        <span
+                            class="badge {% if product.stock > 10 %}badge-success{% elif product.stock > 0 %}badge-warning{% else %}badge-error{% endif %}">
+                            {{ product.stock_status }}
+                        </span>
+                    </div>
+
+                    <div class="product-price">
+                        ₹{{ product.final_price }}
+                        {% if product.discount_price %}
+                        <span class="product-price-old">₹{{ product.price }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div style="display: flex; gap: 0.5rem;">
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary" style="flex: 1;">
+                            <i class="fas fa-cart-plus"></i> Add to Cart
+                        </a>
+                        <a href="{% url 'add_to_wishlist' product.id %}" class="btn btn-outline">
+                            <i class="fas fa-heart"></i>
+                        </a>
+                        {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-primary" style="flex: 1;">
+                            <i class="fas fa-sign-in-alt"></i> Login to Buy
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">No featured products available
+            </p>
+            {% endfor %}
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="{% url 'product_list' %}" class="btn btn-outline">
+                View All Products <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- New Arrivals -->
+    <section style="margin: 4rem 0;">
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <h2><i class="fas fa-fire"></i> New Arrivals</h2>
+            <p style="color: var(--text-muted);">Check out the latest additions to our store</p>
+        </div>
+
+        <div class="grid grid-4">
+            {% for product in new_arrivals %}
+            <div class="card product-card">
+                <div class="product-badge" style="background: var(--info);">NEW</div>
+
+                <a href="{% url 'product_detail' product.slug %}">
+                    {% if product.images.all.0 %}
+                    <img src="{{ product.images.all.0.image.url }}" alt="{{ product.name }}">
+                    {% else %}
+                    <div
+                        style="width: 100%; height: 250px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 0.75rem; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-image" style="font-size: 3rem; color: white; opacity: 0.3;"></i>
+                    </div>
+                    {% endif %}
+                </a>
+
+                <div>
+                    <a href="{% url 'product_detail' product.slug %}" class="product-title">
+                        {{ product.name|truncatewords:6 }}
+                    </a>
+
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <span class="badge badge-info">{{ product.brand.name }}</span>
+                    </div>
+
+                    <div class="product-price">
+                        ₹{{ product.final_price }}
+                        {% if product.discount_price %}
+                        <span class="product-price-old">₹{{ product.price }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div style="display: flex; gap: 0.5rem;">
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary" style="flex: 1;">
+                            <i class="fas fa-cart-plus"></i> Add to Cart
+                        </a>
+                        {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-primary" style="flex: 1;">
+                            <i class="fas fa-sign-in-alt"></i> Login to Buy
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">No new arrivals</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Brands Section -->
+    <section style="margin: 4rem 0;">
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <h2><i class="fas fa-award"></i> Top Brands</h2>
+            <p style="color: var(--text-muted);">Shop from your favorite brands</p>
+        </div>
+
+        <div class="grid grid-4">
+            {% for brand in brands %}
+            <a href="{% url 'product_list' %}?brand={{ brand.slug }}" class="card glass"
+                style="text-align: center; padding: 2rem; text-decoration: none;">
+                {% if brand.logo %}
+                <img src="{{ brand.logo.url }}" alt="{{ brand.name }}"
+                    style="width: 100px; height: 100px; object-fit: contain; margin: 0 auto 1rem;">
+                {% else %}
+                <div
+                    style="width: 100px; height: 100px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center;">
+                    <span style="font-size: 2rem; font-weight: 800; color: white;">{{ brand.name|slice:":1" }}</span>
+                </div>
+                {% endif %}
+                <h4 style="color: var(--text-primary);">{{ brand.name }}</h4>
+            </a>
+            {% empty %}
+            <p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">No brands available</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section style="margin: 4rem 0;">
+        <div class="grid grid-4">
+            <div class="card glass" style="text-align: center; padding: 2rem;">
+                <i class="fas fa-shipping-fast"
+                    style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
+                <h4>Free Shipping</h4>
+                <p style="color: var(--text-muted);">On orders above ₹500</p>
+            </div>
+
+            <div class="card glass" style="text-align: center; padding: 2rem;">
+                <i class="fas fa-shield-alt" style="font-size: 3rem; color: var(--success); margin-bottom: 1rem;"></i>
+                <h4>Secure Payment</h4>
+                <p style="color: var(--text-muted);">100% secure transactions</p>
+            </div>
+
+            <div class="card glass" style="text-align: center; padding: 2rem;">
+                <i class="fas fa-undo" style="font-size: 3rem; color: var(--warning); margin-bottom: 1rem;"></i>
+                <h4>Easy Returns</h4>
+                <p style="color: var(--text-muted);">7-day return policy</p>
+            </div>
+
+            <div class="card glass" style="text-align: center; padding: 2rem;">
+                <i class="fas fa-headset" style="font-size: 3rem; color: var(--info); margin-bottom: 1rem;"></i>
+                <h4>24/7 Support</h4>
+                <p style="color: var(--text-muted);">Always here to help</p>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

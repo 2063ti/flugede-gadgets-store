@@ -1,0 +1,48 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}My Profile - FlugEde{% endblock %}
+
+{% block content %}
+<div class="container" style="margin: 4rem auto; max-width: 800px;">
+    <h1 style="margin-bottom: 2rem;"><i class="fas fa-user-circle"></i> My Profile</h1>
+
+    <div class="card">
+        <form method="post">
+            {% csrf_token %}
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                <div class="form-group">
+                    <label class="form-label" for="first_name">First Name</label>
+                    <input type="text" id="first_name" name="first_name" class="form-input"
+                        value="{{ user.first_name }}">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="last_name">Last Name</label>
+                    <input type="text" id="last_name" name="last_name" class="form-input" value="{{ user.last_name }}">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="username">Username</label>
+                <input type="text" id="username" class="form-input" value="{{ user.username }}" disabled>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="email">Email</label>
+                <input type="email" id="email" name="email" class="form-input" value="{{ user.email }}" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="phone">Phone</label>
+                <input type="tel" id="phone" name="phone" class="form-input" value="{{ profile.phone }}">
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Update Profile
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
