@@ -409,12 +409,6 @@ Contributions are welcome! Here's how to contribute:
 
 ---
 
-## 📄 License
-
-This project is licensed under the **MIT License** - see [LICENSE](LICENSE) file for details.
-
----
-
 ## 💬 Support & Contact
 
 - **Issues**: Use GitHub Issues for bug reports
