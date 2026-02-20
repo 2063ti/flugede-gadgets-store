@@ -161,10 +161,3 @@ SESSION_COOKIE_AGE = 86400  # 24 hours
 RAZORPAY_KEY_ID = config('RAZORPAY_KEY_ID', default='')
 RAZORPAY_KEY_SECRET = config('RAZORPAY_KEY_SECRET', default='')
 
-from django.contrib.auth import get_user_model
-
-if os.environ.get("CREATE_SUPERUSER") == "True":
-    User = get_user_model()
-    if not User.objects.filter(username="admin").exists():
-        User.objects.create_superuser("admin", "admin@gmail.com", "admin123")
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
